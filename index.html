@@ -464,20 +464,6 @@
             });
         },
 
-
-        testClipboard(el) {
-            Telegram.WebApp.readTextFromClipboard(function (clipText) {
-                if (clipText === null) {
-                    el.nextElementSibling.innerHTML = 'Clipboard text unavailable.';
-                    el.nextElementSibling.className = 'err';
-                } else {
-                    el.nextElementSibling.innerHTML = '(Read from clipboard: Â«' + clipText + 'Â»)';
-                    el.nextElementSibling.className = 'ok';
-                }
-            });
-            return false;
-        },
-
         // cloud storage
         cloudStorageKeys: {},
         cloudStorageItems: {},
@@ -518,49 +504,6 @@
             }
 
             document.getElementById('cloud_rows').innerHTML = html
-        },
-        loadCloudKeys(el) {
-            Telegram.WebApp.CloudStorage.getKeys(function(err, keys) {
-                if (err) {
-                    DemoApp.showAlert('Error: ' + err);
-                } else {
-                    if (keys.length > 0) {
-                        Telegram.WebApp.CloudStorage.getItems(keys, function(err, values) {
-                            if (err) {
-                                DemoApp.showAlert('Error: ' + err);
-                            } else {
-                                DemoApp.cloudStorageKeys = keys;
-                                DemoApp.cloudStorageItems = {};
-                                for (let i = 0; i < keys.length; i++) {
-                                    const key = keys[i];
-                                    DemoApp.cloudStorageItems[key] = values[key];
-                                }
-                                DemoApp.updateCloudRows();
-                            }
-                        });
-                    }
-                }
-            });
-        },
-
-        // biometrics
-        biometricInit(el) {
-            const biometricManager = Telegram.WebApp.BiometricManager;
-            if (!DemoApp.biometricInited) {
-                DemoApp.biometricInited = true;
-                Telegram.WebApp.onEvent('biometricManagerUpdated', function() {
-                    document.getElementById('bm_inited').textContent = biometricManager.isInited ? 'true' : 'false'
-                    document.getElementById('bm_available').textContent = biometricManager.isBiometricAvailable ? 'true' : 'false'
-                    document.getElementById('bm_type').textContent = biometricManager.biometricType || ''
-                    document.getElementById('bm_access_requested').textContent = biometricManager.isAccessRequested ? 'true' : 'false'
-                    document.getElementById('bm_access_granted').textContent = biometricManager.isAccessGranted ? 'true' : 'false'
-                    document.getElementById('bm_token_saved').textContent = biometricManager.isBiometricTokenSaved ? 'true' : 'false'
-                    document.getElementById('bm_device_id').textContent = biometricManager.deviceId || ''
-                    document.getElementById('bm_settings').style.display = biometricManager.isBiometricAvailable && biometricManager.isAccessRequested && !biometricManager.isAccessGranted ? 'block' : 'none'
-                });
-            }
-
-            biometricManager.init();
         },
 
         // Other
@@ -661,57 +604,18 @@
     Telegram.WebApp.onEvent('viewportChanged', setViewportData);
     setViewportData();
 
-    let prevBgColorVal   = document.getElementById('bg_color_sel').value;
     const bgColorInput   = document.getElementById('bg_color_input');
     const headerColorSel = document.getElementById('header_color_sel');
 
-    bgColorInput.value = Telegram.WebApp.backgroundColor;
     document.body.setAttribute('style', '--bg-color:' + Telegram.WebApp.backgroundColor);
-    headerColorSel.value = 'secondary_bg_color';
-    headerColorSel.addEventListener('change', function (e) {
-        const colorKey = e.target.value;
-        document.getElementById('top_sect').classList.toggle('second', colorKey === 'secondary_bg_color');
-        Telegram.WebApp.setHeaderColor(colorKey);
-        document.body.setAttribute('style', '--bg-color:' + Telegram.WebApp.backgroundColor);
-    });
-    bgColorInput.addEventListener('change', function (e) {
-        const color                                         = e.target.value;
-        document.getElementById('bg_color_val').textContent = color;
-        headerColorSel.value                                = 'custom';
-        prevBgColorVal                                      = document.getElementById('bg_color_sel').value;
-        Telegram.WebApp.setBackgroundColor(color);
-        document.body.setAttribute('style', '--bg-color:' + Telegram.WebApp.backgroundColor);
-    });
-    headerColorSel.addEventListener('change', function (e) {
-        const colorKey = e.target.value;
-        if (colorKey === 'custom') {
-            headerColorSel.value = prevBgColorVal;
-            bgColorInput.focus();
-        } else {
-            document.getElementById('bg_color_val').textContent = 'custom...';
-            Telegram.WebApp.setBackgroundColor(colorKey);
-            document.body.setAttribute('style', '--bg-color:' + Telegram.WebApp.backgroundColor);
-            bgColorInput.value = Telegram.WebApp.backgroundColor;
-            prevBgColorVal     = headerColorSel.value;
-        }
-    });
+
+
 
     Telegram.WebApp.onEvent('themeChanged', function () {
         bgColorInput.value = Telegram.WebApp.backgroundColor;
         document.body.setAttribute('style', '--bg-color:' + Telegram.WebApp.backgroundColor);
     });
 
-    try {
-        DemoApp.testClipboard(document.getElementById('clipboard_test'));
-    } catch(e) {}
-
-    try {
-        DemoApp.loadCloudKeys();
-    } catch(e) {}
-
-    try {
-        DemoApp.biometricInit();
-    } catch(e) {}
 </script>
 
 </body>
