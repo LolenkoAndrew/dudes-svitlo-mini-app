@@ -414,7 +414,7 @@
             const webViewStatus = document.querySelector('#webview_data_status');
             if (DemoApp.initDataUnsafe.query_id &&
                 DemoApp.initData &&
-                webViewStatus.classList.contains('status_need')
+                webViewStatus?.classList?.contains('status_need')
             ) {
                 webViewStatus.classList.remove('status_need');
                 DemoApp.apiRequest('checkInitData', {}, function (result) {
