@@ -358,8 +358,7 @@
 <body class="" style="visibility: hidden;">
 
 <section id="top_sect" class="second">
-    <button onclick="DemoApp.expand();">Expand Webview</button>
-
+    <div id="content"></div>
 </section>
 
 <section>
@@ -370,11 +369,6 @@
     <ul>
         <li><a href="javascript:Telegram.WebApp.openLink('https://energy-ua.info/',{try_browser:'chrome'});">energy-ua.info</a> (opens in Chrome)</li>
     </ul>
-
-
-
-
-
 </section>
 
 <div class="viewport-border"></div>
@@ -439,7 +433,6 @@
         showAlert(message) {
             Telegram.WebApp.showAlert(message);
         },
-
 
         showScanQrPopup: function (linksOnly) {
             Telegram.WebApp.showScanQrPopup({
@@ -570,7 +563,6 @@
      */
 
     if (DemoApp.initDataUnsafe.query_id) {
-        document.getElementById('main_btn').style.display = 'block';
     }
 
     if (DemoApp.initDataUnsafe.receiver) {
@@ -605,7 +597,6 @@
     setViewportData();
 
     const bgColorInput   = document.getElementById('bg_color_input');
-    const headerColorSel = document.getElementById('header_color_sel');
 
     document.body.setAttribute('style', '--bg-color:' + Telegram.WebApp.backgroundColor);
 
@@ -615,6 +606,122 @@
         bgColorInput.value = Telegram.WebApp.backgroundColor;
         document.body.setAttribute('style', '--bg-color:' + Telegram.WebApp.backgroundColor);
     });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        fetchData();
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+        fetchData();
+    });
+
+    function fetchData() {
+        const url = 'https://kharkiv.energy-ua.info/grafik/Харків/Волонтерська/60';
+        getFromEnergyUa(url)
+            .then(responce => {
+                const intervals = parseHtmlFromEnergyUa(responce);
+                // Format the intervals into a readable string
+                const intervalsGoodStr = intervals.intervalsGood.map(interval => `${interval.start} - ${interval.end}`).join(", ");
+                const intervalsBadStr = intervals.intervalsBad.map(interval => `${interval.start} - ${interval.end}`).join(", ");
+                const intervalsPotentialStr = intervals.intervalsPotential.map(interval => `${interval.start} - ${interval.end}`).join(", ");
+
+                // Construct the final result message
+                const result = `
+                        Світло є: ${intervalsGoodStr}
+                        Можливо відключення: ${intervalsPotentialStr}
+                        Світла немає: ${intervalsBadStr}
+                    `;
+
+                document.getElementById('content').innerHTML = result;
+            })
+            .catch(error => {
+                document.getElementById('content').innerHTML = error;
+        });
+    }
+
+    async function getFromEnergyUa(address) {
+        const url = `${address}`;
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return await response.text(); // Get the HTML content as text
+        } catch (error) {
+            console.error(`Error fetching data: ${error}`);
+            throw error; // Rethrow or handle as needed
+        }
+    }
+
+    function parseHtmlFromEnergyUa(htmlContent) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlContent, 'text/html');
+        const divs = doc.querySelectorAll('div.scale_block > div');
+
+        const schedule = { good: [], bad: [], potential: [] };
+
+        divs.forEach(div => {
+            const text = div.textContent;
+            if (div.classList.contains("scale_el") && !div.classList.contains("scale_el_r") && !div.classList.contains("scale_el_y")) {
+                schedule.good.push(text);
+            } else if (div.classList.contains("scale_el_r")) {
+                schedule.bad.push(text);
+            } else if (div.classList.contains("scale_el_y")) {
+                schedule.potential.push(text);
+            }
+        });
+
+        // Assuming parseTimesIntoIntervals is implemented similarly to Java version
+        const intervalsGood = parseTimesIntoIntervals(schedule.good);
+        const intervalsBad = parseTimesIntoIntervals(schedule.bad);
+        const intervalsPotential = parseTimesIntoIntervals(schedule.potential);
+
+        return { intervalsGood, intervalsPotential, intervalsBad };
+    }
+
+    function parseTimesIntoIntervals(timesList) {
+        if (timesList.length === 0) {
+            return [];
+        }
+        const intervals = [];
+
+        let interval = { start: timesList[0], end: "" };
+
+        for (let i = 0; i < timesList.length; i++) {
+            const time = timesList[i];
+            const [timeHour] = time.split(":").map(Number); // Extract hour part and convert to number
+
+            if (i + 1 !== timesList.length) {
+                const timeNext = timesList[i + 1];
+                const [timeHourNext] = timeNext.split(":").map(Number); // Extract next hour part and convert to number
+
+                if (timeHour + 1 !== timeHourNext) {
+                    interval.end = formatTime(timeHour + 1);
+                    intervals.push({ ...interval });
+                    interval = { start: timeNext, end: "" }; // Reset interval for next iteration
+                }
+            } else {
+                // Last item, set end time and push to intervals
+                interval.end = formatTime(timeHour + 1);
+                intervals.push({ ...interval });
+            }
+        }
+
+        return intervals;
+    }
+
+    // Helper function to format time correctly
+    function formatTime(hour) {
+        if (hour === 24) {
+            return "24:00";
+        } else if (hour < 10) {
+            return `0${hour}:00`;
+        } else {
+            return `${hour}:00`;
+        }
+    }
+
+
+
 
 </script>
 
