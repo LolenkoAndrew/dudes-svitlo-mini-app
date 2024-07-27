@@ -562,9 +562,6 @@
      * This part of code is used to initialize the demo app and set up the event handlers we need.
      */
 
-    if (DemoApp.initDataUnsafe.query_id) {
-    }
-
     if (DemoApp.initDataUnsafe.receiver) {
         document.getElementById('peer_wrap').style.display = 'block';
         document.getElementById('peer_name').innerHTML     = DemoApp.initDataUnsafe.receiver.first_name + ' ' + DemoApp.initDataUnsafe.receiver.last_name;
@@ -641,7 +638,20 @@
     async function getFromEnergyUa(address) {
         const url = `${address}`;
         try {
-            const response = await fetch(url);
+            app.use((req, res, next) => {
+                res.header('Access-Control-Allow-Origin', '*'); // Replace '*' with your origin or keep '*' for allowing all origins
+                next();
+            });
+            const myHeaders = new Headers();
+            //myHeaders.append("Content-Type", "application/json");
+            myHeaders.append("Access-Control-Allow-Origin", "*");
+            myHeaders.append('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+
+            const response = await fetch(url, {
+                method: 'GET',
+                //mode: 'no-cors',
+                headers: myHeaders,
+            });
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
