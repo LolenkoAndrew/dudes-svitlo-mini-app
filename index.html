@@ -467,7 +467,7 @@
 
 <script type="application/javascript">
 
-    let money = 0;
+    let money = getSave();
     let mpc = 1;
     let mpcCost = 10;
     let mps = 0;
@@ -485,6 +485,7 @@
         mpcCostDisplay.textContent = mpcCost;
         mpsDisplay.textContent = mps;
         mpsCostDisplay.textContent = mpsCost;
+        localStorage.setItem('clickCount', money);
     }
 
     function clickCookie() {
@@ -520,6 +521,18 @@
     }
 
     updateDisplay();
+    function getSave() {
+        let clickCount = localStorage.getItem('clickCount');
+        let number = parseInt(clickCount, 10);
+        if (!isNaN(number)) {
+            console.log(clickCount);
+            return number;
+        } else {
+            return 0;
+        }
+    }
+
+
 
     /*
      * This is a demo code for Telegram WebApp for Bots
