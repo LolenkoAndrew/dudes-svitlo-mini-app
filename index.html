@@ -467,6 +467,7 @@
 
 <script type="application/javascript">
 
+    let intervalId;
     let money = getSaveClick();
     let mpc = getSaveMpc();
     let mpcCost = 10;
@@ -514,14 +515,22 @@
             mps++; // Increase MPS
             mpsCost *= 2; // Increase cost for next purchase
             // Automatically add money every second
-            setInterval(function() {
-                money += mps;
-                updateDisplay();
-            }, 1000);
+            startInterval();
             updateDisplay();
         } else {
             alert("Not enough money to buy EPS!");
         }
+    }
+
+    function startInterval() {
+        if (intervalId) {
+            clearInterval(intervalId);
+        }
+
+        intervalId = setInterval(function() {
+            money += mps;
+            updateDisplay();
+        }, 1000);
     }
 
     function getSaveClick() {
@@ -549,10 +558,7 @@
         let mpsSaved = localStorage.getItem('mps');
         let number = parseInt(mpsSaved, 10);
         if (!isNaN(number)) {
-            setInterval(function() {
-                money += mps;
-                updateDisplay();
-            }, 1000);
+            startInterval();
             return number;
         } else {
             return 0;
