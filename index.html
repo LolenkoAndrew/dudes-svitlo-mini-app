@@ -467,10 +467,10 @@
 
 <script type="application/javascript">
 
-    let money = getSave();
-    let mpc = 1;
+    let money = getSaveClick();
+    let mpc = getSaveMpc();
     let mpcCost = 10;
-    let mps = 0;
+    let mps = getSaveMps();
     let mpsCost = 50;
 
     const moneyDisplay = document.getElementById("money");
@@ -480,12 +480,16 @@
     const mpsCostDisplay = document.getElementById("mpsCost");
 
     function updateDisplay() {
+        const currentTime = Date.now(); // Get the current time in milliseconds
+        localStorage.setItem('lastOpened', currentTime);
+        localStorage.setItem('clickCount', money);
+        localStorage.setItem('mpc', mpc);
+        localStorage.setItem('mps', mps);
         moneyDisplay.textContent = money;
         mpcDisplay.textContent = mpc;
         mpcCostDisplay.textContent = mpcCost;
         mpsDisplay.textContent = mps;
         mpsCostDisplay.textContent = mpsCost;
-        localStorage.setItem('clickCount', money);
     }
 
     function clickCookie() {
@@ -516,12 +520,11 @@
             }, 1000);
             updateDisplay();
         } else {
-            alert("Not enough money to buy MPS!");
+            alert("Not enough money to buy EPS!");
         }
     }
 
-    updateDisplay();
-    function getSave() {
+    function getSaveClick() {
         let clickCount = localStorage.getItem('clickCount');
         let number = parseInt(clickCount, 10);
         if (!isNaN(number)) {
@@ -531,6 +534,60 @@
             return 0;
         }
     }
+
+    function getSaveMpc() {
+        let mpcSaved = localStorage.getItem('mpc');
+        let number = parseInt(mpcSaved, 10);
+        if (!isNaN(number)) {
+            return number;
+        } else {
+            return 1;
+        }
+    }
+
+    function getSaveMps() {
+        let mpsSaved = localStorage.getItem('mps');
+        let number = parseInt(mpsSaved, 10);
+        if (!isNaN(number)) {
+            setInterval(function() {
+                money += mps;
+                updateDisplay();
+            }, 1000);
+            return number;
+        } else {
+            return 0;
+        }
+    }
+    function calculateEarnedMoney() {
+        const lastOpened = localStorage.getItem('lastOpened');
+        const mps = localStorage.getItem('mps');
+
+        let mpsSaved = localStorage.getItem('mps');
+        let numberMps = parseInt(mpsSaved, 10);
+        if (lastOpened && mps && !isNaN(numberMps)) {
+            const currentTime = Date.now(); // Get the current time in milliseconds
+            const timeDifference = Math.round((currentTime - lastOpened)/1000); // Convert time difference to seconds
+            const earnedMoney = timeDifference * numberMps; // Calculate earned money
+
+            console.log("earnedMoney", earnedMoney);
+            console.log("timeDifference", timeDifference);
+            console.log("currentTime", currentTime);
+            console.log("lastOpened", lastOpened);
+
+            money += earnedMoney;
+            updateDisplay();
+            return earnedMoney;
+        }
+        return 0; // If no previous data, return 0
+    }
+    calculateEarnedMoney();
+    updateDisplay();
+
+
+
+
+
+
 
 
 
@@ -753,10 +810,6 @@
     Telegram.WebApp.onEvent('themeChanged', function () {
         bgColorInput.value = Telegram.WebApp.backgroundColor;
         document.body.setAttribute('style', '--bg-color:' + Telegram.WebApp.backgroundColor);
-    });
-
-    document.addEventListener('DOMContentLoaded', function() {
-        //fetchData();
     });
 
     function fetchData() {
