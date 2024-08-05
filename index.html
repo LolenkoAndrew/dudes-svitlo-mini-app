@@ -510,6 +510,10 @@
         localStorage.setItem('clickCount', money);
         localStorage.setItem('mpc', mpc);
         localStorage.setItem('mps', mps);
+        DemoApp.saveCloud('lastOpened', currentTime);
+        DemoApp.saveCloud('clickCount', money);
+        DemoApp.saveCloud('mpc', mpc);
+        DemoApp.saveCloud('mps', mps);
         moneyDisplay.textContent = money;
         mpcDisplay.textContent = mpc;
         mpcCostDisplay.textContent = mpcCost;
@@ -784,6 +788,23 @@
                     }
                 }
             });
+        },
+
+        saveCloud(key, value) {
+            Telegram.WebApp.CloudStorage.setItem(key, value, function(err, saved) {
+                if (err) {
+                    DemoApp.showAlert('Error: ' + err);
+                } else {
+                    if (saved) {
+                        if (typeof DemoApp.cloudStorageItems[key] === 'undefined') {
+                            DemoApp.cloudStorageKeys.push(key);
+                        }
+                        DemoApp.cloudStorageItems[key] = value;
+                    }
+                    DemoApp.updateCloudRows();
+                }
+            });
+            DemoApp.loadCloudKeys();
         },
 
 
