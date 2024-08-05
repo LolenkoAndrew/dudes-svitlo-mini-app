@@ -937,10 +937,10 @@
 
     function updateDisplay() {
         const currentTime = Date.now(); // Get the current time in milliseconds
-        //localStorage.setItem('lastOpened', currentTime);
-        //localStorage.setItem('clickCount', money);
-        //localStorage.setItem('mpc', mpc);
-        //localStorage.setItem('mps', mps);
+        localStorage.setItem('lastOpened', currentTime);
+        localStorage.setItem('clickCount', money);
+        localStorage.setItem('mpc', mpc);
+        localStorage.setItem('mps', mps);
         DemoApp.saveCloud('lastOpened', currentTime);
         DemoApp.saveCloud('clickCount', money);
         DemoApp.saveCloud('mpc', mpc);
@@ -993,7 +993,7 @@
     }
 
     function getSaveClick() {
-        let clickCount = DemoApp.getCachedCloudItem('clickCount');
+        let clickCount = localStorage.getItem('clickCount');
         let number = parseInt(clickCount, 10);
         if (!isNaN(number)) {
             console.log(clickCount);
@@ -1004,7 +1004,7 @@
     }
 
     function getSaveMpc() {
-        let mpcSaved = DemoApp.getCachedCloudItem('mpc');
+        let mpcSaved = localStorage.getItem('mpc');
         let number = parseInt(mpcSaved, 10);
         if (!isNaN(number)) {
             return number;
@@ -1014,7 +1014,7 @@
     }
 
     function getSaveMps() {
-        let mpsSaved = DemoApp.getCachedCloudItem('mps');
+        let mpsSaved = localStorage.getItem('mps');
         let number = parseInt(mpsSaved, 10);
         if (!isNaN(number)) {
             startInterval();
@@ -1024,10 +1024,10 @@
         }
     }
     function calculateEarnedMoney() {
-        const lastOpened = DemoApp.getCachedCloudItem('lastOpened');
-        const mps = DemoApp.getCachedCloudItem('mps');
+        const lastOpened = localStorage.getItem('lastOpened');
+        const mps = localStorage.getItem('mps');
 
-        let mpsSaved = DemoApp.getCachedCloudItem('mps');
+        let mpsSaved = localStorage.getItem('mps');
         let numberMps = parseInt(mpsSaved, 10);
         if (lastOpened && mps && !isNaN(numberMps)) {
             const currentTime = Date.now(); // Get the current time in milliseconds
