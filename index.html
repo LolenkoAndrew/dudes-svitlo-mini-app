@@ -664,6 +664,17 @@
                 }
             });
         },
+        getCloudItem(key) {
+            let result;
+            Telegram.WebApp.CloudStorage.getItem(key, function(err, value) {
+                    if (err) {
+                        DemoApp.showAlert('Error: ' + err);
+                    } else {
+                        result = value;
+                    }
+            });
+            return result;
+        },
 
         saveCloud(key, value) {
             Telegram.WebApp.CloudStorage.setItem(key, value, function(err, saved) {
@@ -915,10 +926,10 @@
 
     function updateDisplay() {
         const currentTime = Date.now(); // Get the current time in milliseconds
-        localStorage.setItem('lastOpened', currentTime);
-        localStorage.setItem('clickCount', money);
-        localStorage.setItem('mpc', mpc);
-        localStorage.setItem('mps', mps);
+        //localStorage.setItem('lastOpened', currentTime);
+        //localStorage.setItem('clickCount', money);
+        //localStorage.setItem('mpc', mpc);
+        //localStorage.setItem('mps', mps);
         DemoApp.saveCloud('lastOpened', currentTime);
         DemoApp.saveCloud('clickCount', money);
         DemoApp.saveCloud('mpc', mpc);
@@ -971,7 +982,7 @@
     }
 
     function getSaveClick() {
-        let clickCount = localStorage.getItem('clickCount');
+        let clickCount = DemoApp.getCloudItem('clickCount');
         let number = parseInt(clickCount, 10);
         if (!isNaN(number)) {
             console.log(clickCount);
@@ -982,7 +993,7 @@
     }
 
     function getSaveMpc() {
-        let mpcSaved = localStorage.getItem('mpc');
+        let mpcSaved = DemoApp.getCloudItem('mpc');
         let number = parseInt(mpcSaved, 10);
         if (!isNaN(number)) {
             return number;
@@ -992,7 +1003,7 @@
     }
 
     function getSaveMps() {
-        let mpsSaved = localStorage.getItem('mps');
+        let mpsSaved = DemoApp.getCloudItem('mps');
         let number = parseInt(mpsSaved, 10);
         if (!isNaN(number)) {
             startInterval();
@@ -1002,10 +1013,10 @@
         }
     }
     function calculateEarnedMoney() {
-        const lastOpened = localStorage.getItem('lastOpened');
-        const mps = localStorage.getItem('mps');
+        const lastOpened = DemoApp.getCloudItem('lastOpened');
+        const mps = DemoApp.getCloudItem('mps');
 
-        let mpsSaved = localStorage.getItem('mps');
+        let mpsSaved = DemoApp.getCloudItem('mps');
         let numberMps = parseInt(mpsSaved, 10);
         if (lastOpened && mps && !isNaN(numberMps)) {
             const currentTime = Date.now(); // Get the current time in milliseconds
