@@ -675,6 +675,10 @@
             });
             return result;
         },
+        getCachedCloudItem(desiredKey) {
+
+            return DemoApp.cloudStorageItems[desiredKey];
+        },
 
         saveCloud(key, value) {
             Telegram.WebApp.CloudStorage.setItem(key, value, function(err, saved) {
@@ -690,7 +694,6 @@
                     DemoApp.updateCloudRows();
                 }
             });
-            DemoApp.loadCloudKeys();
         },
 
 
@@ -982,7 +985,7 @@
     }
 
     function getSaveClick() {
-        let clickCount = DemoApp.getCloudItem('clickCount');
+        let clickCount = DemoApp.getCachedCloudItem('clickCount');
         let number = parseInt(clickCount, 10);
         if (!isNaN(number)) {
             console.log(clickCount);
@@ -993,7 +996,7 @@
     }
 
     function getSaveMpc() {
-        let mpcSaved = DemoApp.getCloudItem('mpc');
+        let mpcSaved = DemoApp.getCachedCloudItem('mpc');
         let number = parseInt(mpcSaved, 10);
         if (!isNaN(number)) {
             return number;
@@ -1003,7 +1006,7 @@
     }
 
     function getSaveMps() {
-        let mpsSaved = DemoApp.getCloudItem('mps');
+        let mpsSaved = DemoApp.getCachedCloudItem('mps');
         let number = parseInt(mpsSaved, 10);
         if (!isNaN(number)) {
             startInterval();
@@ -1013,10 +1016,10 @@
         }
     }
     function calculateEarnedMoney() {
-        const lastOpened = DemoApp.getCloudItem('lastOpened');
-        const mps = DemoApp.getCloudItem('mps');
+        const lastOpened = DemoApp.getCachedCloudItem('lastOpened');
+        const mps = DemoApp.getCachedCloudItem('mps');
 
-        let mpsSaved = DemoApp.getCloudItem('mps');
+        let mpsSaved = DemoApp.getCachedCloudItem('mps');
         let numberMps = parseInt(mpsSaved, 10);
         if (lastOpened && mps && !isNaN(numberMps)) {
             const currentTime = Date.now(); // Get the current time in milliseconds
