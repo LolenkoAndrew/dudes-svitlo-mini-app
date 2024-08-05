@@ -448,6 +448,30 @@
         <button onclick="buyMPS()">Buy (Cost: <span id="mpsCost">50</span> electricity)</button>
     </div>
 
+    <p>Cloud storage:</p>
+    <form onsubmit="DemoApp.saveCloudForm(this, event);">
+        <table class="table table-bordered small">
+            <thead>
+            <tr>
+                <th width="20%">Key</th>
+                <th width="70%">Value</th>
+                <th width="10%"></th>
+            </tr>
+            </thead>
+            <tbody id="cloud_rows"></tbody>
+            <tfoot>
+            <tr>
+                <td><input type="text" name="key" /></td>
+                <td><input type="text" name="value" /></td>
+                <td>
+                    <button type="submit">Save</button>
+                    <button type="reset">Clear</button>
+                </td>
+            </tr>
+            </tfoot>
+        </table>
+    </form>
+
 </section>
 
 <section style="visibility: hidden;">
@@ -708,6 +732,25 @@
                 }
             });
         },
+        saveCloudForm(form, event) {
+            event.preventDefault();
+            const key = form.key.value
+            const value = form.value.value
+            Telegram.WebApp.CloudStorage.setItem(key, value, function(err, saved) {
+                if (err) {
+                    DemoApp.showAlert('Error: ' + err);
+                } else {
+                    if (saved) {
+                        if (typeof DemoApp.cloudStorageItems[key] === 'undefined') {
+                            DemoApp.cloudStorageKeys.push(key);
+                        }
+                        DemoApp.cloudStorageItems[key] = value;
+                    }
+                    form.reset();
+                    DemoApp.updateCloudRows();
+                }
+            });
+        },
         updateCloudRows() {
             let html = '';
             const keys = DemoApp.cloudStorageKeys;
@@ -719,6 +762,30 @@
 
             document.getElementById('cloud_rows').innerHTML = html
         },
+        loadCloudKeys(el) {
+            Telegram.WebApp.CloudStorage.getKeys(function(err, keys) {
+                if (err) {
+                    DemoApp.showAlert('Error: ' + err);
+                } else {
+                    if (keys.length > 0) {
+                        Telegram.WebApp.CloudStorage.getItems(keys, function(err, values) {
+                            if (err) {
+                                DemoApp.showAlert('Error: ' + err);
+                            } else {
+                                DemoApp.cloudStorageKeys = keys;
+                                DemoApp.cloudStorageItems = {};
+                                for (let i = 0; i < keys.length; i++) {
+                                    const key = keys[i];
+                                    DemoApp.cloudStorageItems[key] = values[key];
+                                }
+                                DemoApp.updateCloudRows();
+                            }
+                        });
+                    }
+                }
+            });
+        },
+
 
         // Other
         apiRequest(method, data, onCallback) {
